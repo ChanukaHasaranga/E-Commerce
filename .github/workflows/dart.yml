@@ -1,0 +1,48 @@
+name: Flutter CI/CD
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Get the source code
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # Install Flutter with Dart 3.7.2 (Flutter 3.32.x)
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.32.8'
+
+      # Install dependencies
+      - name: Install dependencies
+        working-directory: ecommerce
+        run: flutter pub get
+
+      # Run tests
+      - name: Run tests
+        working-directory: ecommerce
+        run: flutter test
+
+      # Build release APK
+      - name: Build APK
+        working-directory: ecommerce
+        run: flutter build apk --release --split-per-abi
+
+      # Optionally: Upload to Play Store
+      # - name: Upload to Play Store
+      #   uses: r0adkll/upload-google-play@v1
+      #   with:
+      #     serviceAccountJsonPlainText: ${{ secrets.GOOGLE_PLAY_JSON }}
+      #     packageName: com.example.app
+      #     releaseFile: fix_and_perfect/build/app/outputs/flutter-apk/app-arm64-v8a-release.apk
+      #     track: internal

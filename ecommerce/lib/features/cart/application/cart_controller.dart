@@ -3,7 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive/hive.dart';
 import '../domain/cart_item.dart';
 
-final cartProvider = StateNotifierProvider<CartController, List<CartItem>>((ref) {
+final cartProvider = StateNotifierProvider<CartController, List<CartItem>>((
+  ref,
+) {
   return CartController();
 });
 
@@ -28,20 +30,30 @@ class CartController extends StateNotifier<List<CartItem>> {
     state = state.where((e) => e.product.id != item.product.id).toList();
     saveCart();
   }
+void increaseQuantity(CartItem item) {
+  state = [
+    for (final i in state)
+      if (i.product.id == item.product.id)
+        CartItem(product: i.product, quantity: i.quantity + 1)
+      else
+        i
+  ];
+  saveCart();
+}
 
-  void increaseQuantity(CartItem item) {
-    item.quantity++;
-    saveCart();
-  }
-
-  void decreaseQuantity(CartItem item) {
-    if (item.quantity > 1) {
-      item.quantity--;
-    } else {
-      removeItem(item);
-    }
-    saveCart();
-  }
+void decreaseQuantity(CartItem item) {
+  state = [
+    for (final i in state)
+      if (i.product.id == item.product.id)
+        if (i.quantity > 1)
+          CartItem(product: i.product, quantity: i.quantity - 1)
+        else
+          null
+      else
+        i
+  ].whereType<CartItem>().toList();
+  saveCart();
+}
 
   double get total =>
       state.fold(0, (sum, item) => sum + item.product.price * item.quantity);
@@ -53,7 +65,16 @@ class CartController extends StateNotifier<List<CartItem>> {
 
   void saveCart() {
     final List<Map<String, dynamic>> cartMap = state
-        .map((e) => {'id': e.product.id, 'quantity': e.quantity})
+        .map(
+          (e) => {
+            'id': e.product.id,
+            'name': e.product.name,
+            'description': e.product.description,
+            'price': e.product.price,
+            'imageUrl': e.product.imageUrl,
+            'quantity': e.quantity,
+          },
+        )
         .toList();
     _box.put('cart', cartMap);
   }
@@ -61,8 +82,19 @@ class CartController extends StateNotifier<List<CartItem>> {
   void loadCart() {
     final List<dynamic>? saved = _box.get('cart');
     if (saved != null) {
-
-      state = [];
+      state = saved.map((e) {
+        final Map<String, dynamic> map = Map<String, dynamic>.from(e);
+        return CartItem(
+          product: Product(
+            id: map['id'],
+            name: map['name'],
+            description: map['description'],
+            price: map['price'],
+            imageUrl: map['imageUrl'],
+          ),
+          quantity: map['quantity'],
+        );
+      }).toList();
     }
   }
 }

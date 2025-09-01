@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "945030521490",
+    "project_id": "mini-e-commerce-be4db",
+    "storage_bucket": "mini-e-commerce-be4db.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:945030521490:android:477ddb928c45b95209fc4b",
+        "android_client_info": {
+          "package_name": "com.example.ecommerce"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD0cdcgFFBBeV_m1V7kC-InJrB0-tfhZzM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:945030521490:android:73cfefeebbd13d2c09fc4b",
+        "android_client_info": {
+          "package_name": "com.example.mini_e_commerce"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD0cdcgFFBBeV_m1V7kC-InJrB0-tfhZzM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

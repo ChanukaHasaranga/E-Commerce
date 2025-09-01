@@ -11,6 +11,12 @@ Mini E-Commerce is a Flutter application built with Clean Architecture principle
   - **Data**: Repository implementations interacting with Firestore
 - **State Management**: Riverpod
 - **Persistence**: Hive for local cart, Firestore for product data
+- 
+## How to Test
+### App
+```bash
+flutter test 
+```
 
 ## How to Run
 ### Web
@@ -19,4 +25,5 @@ flutter run -d chrome
 ```
 ### App
 ```bash
-flutter run 
+flutter run
+```

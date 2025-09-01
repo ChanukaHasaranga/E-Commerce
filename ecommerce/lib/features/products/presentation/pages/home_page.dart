@@ -2,6 +2,7 @@ import 'package:ecommerce/features/account/presentation/pages/account_page.dart'
 import 'package:ecommerce/features/cart/presentation/pages/cart_page.dart';
 import 'package:ecommerce/features/products/data/product_repo_impl.dart';
 import 'package:ecommerce/features/products/domain/entities/products.dart';
+import 'package:ecommerce/features/products/presentation/pages/product_details.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -56,6 +57,10 @@ class _HomePageState extends ConsumerState<HomePage> {
               leading: Image.network(product.imageUrl, width: 50, height: 50, fit: BoxFit.cover),
               title: Text(product.name),
               subtitle: Text("\$${product.price.toStringAsFixed(2)}"),
+                onTap: () => Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => ProductDetailPage(product: product)),
+              ),
             );
           },
         );

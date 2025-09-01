@@ -29,12 +29,16 @@ class CartPage extends ConsumerWidget {
                         ),
                         title: Text(item.product.name),
                         subtitle: Column(
-  crossAxisAlignment: CrossAxisAlignment.start,
-  children: [
-    Text("\$${item.product.price.toStringAsFixed(2)} each"),
-    Text("Subtotal: \$${(item.product.price * item.quantity).toStringAsFixed(2)}"),
-  ],
-),
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              "\$${item.product.price.toStringAsFixed(2)} each",
+                            ),
+                            Text(
+                              "Subtotal: \$${(item.product.price * item.quantity).toStringAsFixed(2)}",
+                            ),
+                          ],
+                        ),
 
                         trailing: Row(
                           mainAxisSize: MainAxisSize.min,
@@ -65,9 +69,9 @@ class CartPage extends ConsumerWidget {
                   child: Column(
                     children: [
                       Text(
-  "Total: \$${cart.fold(0.0, (sum, item) => sum + item.product.price * item.quantity).toStringAsFixed(2)}",
-  style: const TextStyle(fontSize: 20),
-),
+                        "Total: \$${cart.fold(0.0, (sum, item) => sum + item.product.price * item.quantity).toStringAsFixed(2)}",
+                        style: const TextStyle(fontSize: 20),
+                      ),
 
                       const SizedBox(height: 10),
                       ElevatedButton(
@@ -98,11 +102,6 @@ class CartPage extends ConsumerWidget {
                 ),
               ],
             ),
-
-
-
-
-            
     );
   }
 }

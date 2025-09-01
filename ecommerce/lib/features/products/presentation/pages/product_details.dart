@@ -15,7 +15,17 @@ class ProductDetailPage extends ConsumerWidget {
         padding: const EdgeInsets.all(16),
         child: Column(
           children: [
-            Image.network(product.imageUrl, height: 200, fit: BoxFit.cover),
+Image.network(
+  product.imageUrl,
+  height: 200,
+  fit: BoxFit.cover,
+  errorBuilder: (context, error, stackTrace) => Container(
+    height: 200,
+    color: Colors.grey,
+    child: const Center(child: Icon(Icons.image_not_supported)),
+  ),
+),
+
             const SizedBox(height: 16),
             Text(product.description),
             const SizedBox(height: 16),

@@ -23,7 +23,7 @@ void main() {
       name: 'Test Product',
       description: 'Desc',
       price: 10.0,
-      imageUrl: 'https://example.com/image.png',
+      imageUrl: 'https://pics.clipartpng.com/midle/Blue_T_Shirt_PNG_Clipart-2346.png',
     );
 
     // Mock network images to avoid HttpClient errors

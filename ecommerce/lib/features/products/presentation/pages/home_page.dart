@@ -24,11 +24,7 @@ class _HomePageState extends ConsumerState<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    final tabs = [
-      _buildHomeTab(),
-      const CartPage(),
-      const AccountPage(),
-    ];
+    final tabs = [_buildHomeTab(), const CartPage(), const AccountPage()];
 
     return Scaffold(
       body: tabs[_currentIndex],
@@ -36,37 +32,82 @@ class _HomePageState extends ConsumerState<HomePage> {
         currentIndex: _currentIndex,
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
-          BottomNavigationBarItem(icon: Icon(Icons.shopping_cart), label: 'Cart'),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.shopping_cart),
+            label: 'Cart',
+          ),
           BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Account'),
         ],
         onTap: (index) => setState(() => _currentIndex = index),
       ),
     );
   }
+Widget _buildHomeTab() {
+  final productsAsync = ref.watch(productListProvider);
 
-  Widget _buildHomeTab() {
-    final productsAsync = ref.watch(productListProvider);
-
-    return productsAsync.when(
-      data: (products) {
-        return ListView.builder(
-          itemCount: products.length,
-          itemBuilder: (context, index) {
-            final product = products[index];
-            return ListTile(
-              leading: Image.network(product.imageUrl, width: 50, height: 50, fit: BoxFit.cover),
-              title: Text(product.name),
-              subtitle: Text("\$${product.price.toStringAsFixed(2)}"),
-                onTap: () => Navigator.push(
-                context,
-                MaterialPageRoute(builder: (_) => ProductDetailPage(product: product)),
+  return productsAsync.when(
+    data: (products) {
+      return ListView.builder(
+        itemCount: products.length,
+        itemBuilder: (context, index) {
+          final product = products[index];
+          return ListTile(
+            leading: Image.network(
+              product.imageUrl,
+              height: 50,
+              width: 50,
+              fit: BoxFit.cover,
+              loadingBuilder: (context, child, loadingProgress) {
+                if (loadingProgress == null) return child;
+                return SizedBox(
+                  width: 50,
+                  height: 50,
+                  child: Center(
+                    child: CircularProgressIndicator(
+                      value: loadingProgress.expectedTotalBytes != null
+                          ? loadingProgress.cumulativeBytesLoaded /
+                              loadingProgress.expectedTotalBytes!
+                          : null,
+                    ),
+                  ),
+                );
+              },
+              errorBuilder: (context, error, stackTrace) => Container(
+                height: 50,
+                width: 50,
+                color: Colors.grey[300],
+                child: const Center(
+                  child: Icon(Icons.image_not_supported),
+                ),
               ),
-            );
-          },
-        );
-      },
-      loading: () => const Center(child: CircularProgressIndicator()),
-      error: (e, _) => Center(child: Text("Error: $e")),
-    );
-  }
+            ),
+            title: Text(product.name),
+            subtitle: Text("\$${product.price.toStringAsFixed(2)}"),
+            onTap: () => Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => ProductDetailPage(product: product),
+              ),
+            ),
+          );
+        },
+      );
+    },
+    loading: () => const Center(child: CircularProgressIndicator()),
+    error: (e, _) => Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const Icon(Icons.cloud_off, size: 50, color: Colors.grey),
+          const SizedBox(height: 10),
+          Text(
+            "Unable to load products.\nCheck your Internet connection.",
+            textAlign: TextAlign.center,
+          ),
+        ],
+      ),
+    ),
+  );
+}
+
 }

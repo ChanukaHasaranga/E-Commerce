@@ -16,8 +16,7 @@ Mini E-Commerce is a Flutter application built with Clean Architecture principle
 ### Web
 ```bash
 flutter run -d chrome
-
-## How to Run
-### Web
+```
+### App
 ```bash
-flutter run -d chrome
+flutter run 

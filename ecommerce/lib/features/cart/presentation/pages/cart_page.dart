@@ -22,22 +22,38 @@ class CartPage extends ConsumerWidget {
                     itemBuilder: (context, index) {
                       final item = cart[index];
                       return ListTile(
-                        leading: Image.network(item.product.imageUrl, width: 50, height: 50),
+                        leading: Image.network(
+                          item.product.imageUrl,
+                          width: 50,
+                          height: 50,
+                        ),
                         title: Text(item.product.name),
-                        subtitle: Text("\$${item.product.price.toStringAsFixed(2)}"),
+                        subtitle: Column(
+  crossAxisAlignment: CrossAxisAlignment.start,
+  children: [
+    Text("\$${item.product.price.toStringAsFixed(2)} each"),
+    Text("Subtotal: \$${(item.product.price * item.quantity).toStringAsFixed(2)}"),
+  ],
+),
+
                         trailing: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             IconButton(
-                                icon: const Icon(Icons.remove),
-                                onPressed: () => cartController.decreaseQuantity(item)),
+                              icon: const Icon(Icons.remove),
+                              onPressed: () =>
+                                  cartController.decreaseQuantity(item),
+                            ),
                             Text(item.quantity.toString()),
                             IconButton(
-                                icon: const Icon(Icons.add),
-                                onPressed: () => cartController.increaseQuantity(item)),
+                              icon: const Icon(Icons.add),
+                              onPressed: () =>
+                                  cartController.increaseQuantity(item),
+                            ),
                             IconButton(
-                                icon: const Icon(Icons.delete),
-                                onPressed: () => cartController.removeItem(item)),
+                              icon: const Icon(Icons.delete),
+                              onPressed: () => cartController.removeItem(item),
+                            ),
                           ],
                         ),
                       );
@@ -48,8 +64,11 @@ class CartPage extends ConsumerWidget {
                   padding: const EdgeInsets.all(16),
                   child: Column(
                     children: [
-                      Text("Total: \$${cartController.total.toStringAsFixed(2)}",
-                          style: const TextStyle(fontSize: 20)),
+                      Text(
+  "Total: \$${cart.fold(0.0, (sum, item) => sum + item.product.price * item.quantity).toStringAsFixed(2)}",
+  style: const TextStyle(fontSize: 20),
+),
+
                       const SizedBox(height: 10),
                       ElevatedButton(
                         onPressed: () {
@@ -57,17 +76,20 @@ class CartPage extends ConsumerWidget {
                           final timestamp = DateTime.now();
                           cartController.clearCart();
                           showDialog(
-                              context: context,
-                              builder: (_) => AlertDialog(
-                                    title: const Text('Order Placed'),
-                                    content: Text(
-                                        'Order confirmed at ${timestamp.toLocal().toString()}'),
-                                    actions: [
-                                      TextButton(
-                                          onPressed: () => Navigator.pop(context),
-                                          child: const Text('OK'))
-                                    ],
-                                  ));
+                            context: context,
+                            builder: (_) => AlertDialog(
+                              title: const Text('Order Placed'),
+                              content: Text(
+                                'Order confirmed at ${timestamp.toLocal().toString()}',
+                              ),
+                              actions: [
+                                TextButton(
+                                  onPressed: () => Navigator.pop(context),
+                                  child: const Text('OK'),
+                                ),
+                              ],
+                            ),
+                          );
                         },
                         child: const Text('Checkout'),
                       ),
@@ -76,6 +98,11 @@ class CartPage extends ConsumerWidget {
                 ),
               ],
             ),
+
+
+
+
+            
     );
   }
 }

@@ -10,8 +10,11 @@ import 'package:network_image_mock/network_image_mock.dart';
 void main() {
   setUp(() async {
     // Initialize Hive in memory
-    await setUpTestHive(); 
-    await Hive.openBox('cartBox'); // Open the box used by CartController
+    await setUpTestHive();
+
+    // Open the box used by CartController and pre-fill keys if needed
+    var box = await Hive.openBox('cartBox');
+    await box.put('items', <dynamic>[]); // make sure 'items' key exists
   });
 
   tearDown(() async {
@@ -19,40 +22,40 @@ void main() {
   });
 
   testWidgets('Add to cart button shows SnackBar', (WidgetTester tester) async {
-    final testProduct = Product(
-      id: 'p1',
-      name: 'Test Product',
-      description: 'Desc',
-      price: 10.0,
-      imageUrl: 'https://pics.clipartpng.com/midle/Blue_T_Shirt_PNG_Clipart-2346.png',
-    );
-
-    // Mock network images to avoid HttpClient errors
-    await mockNetworkImagesFor(() async {
-      await tester.pumpWidget(
-        ProviderScope(
-          child: MaterialApp(
-            home: Scaffold(
-              body: ProductDetailPage(product: testProduct),
-            ),
-          ),
-        ),
+    await tester.runAsync(() async {
+      final testProduct = Product(
+        id: 'p1',
+        name: 'Test Product',
+        description: 'Desc',
+        price: 10.0,
+        imageUrl: 'https://pics.clipartpng.com/midle/Blue_T_Shirt_PNG_Clipart-2346.png',
       );
 
-      // Tap the Add to Cart button
-      await tester.tap(find.text('Add to Cart'));
-      
-      // Pump to start the SnackBar animation
-      await tester.pump(); 
-      
-      // Pump for duration of SnackBar animation to appear
-      await tester.pump(const Duration(seconds: 1));
+      // Mock network images to avoid HttpClient errors
+      await mockNetworkImagesFor(() async {
+        await tester.pumpWidget(
+          ProviderScope(
+            child: MaterialApp(
+              home: Scaffold(
+                body: ProductDetailPage(product: testProduct),
+              ),
+            ),
+          ),
+        );
 
-      // Verify SnackBar appears by text
-      expect(find.text('Added to cart'), findsOneWidget);
+        // Tap the Add to Cart button
+        await tester.tap(find.text('Add to Cart'));
 
-      // Optional: verify SnackBar appears by type
-      expect(find.byType(SnackBar), findsOneWidget);
+        // Pump async animations to let SnackBar appear
+        await tester.pump(); // start animation
+        await tester.pump(const Duration(seconds: 1)); // complete animation
+
+        // Verify SnackBar appears
+        expect(find.text('Added to cart'), findsOneWidget);
+
+        // Optional: verify SnackBar appears by type
+        expect(find.byType(SnackBar), findsOneWidget);
+      });
     });
   });
 }

@@ -9,7 +9,8 @@ import 'package:network_image_mock/network_image_mock.dart';
 
 void main() {
   setUp(() async {
-    await setUpTestHive(); // Initialize Hive in memory
+    // Initialize Hive in memory
+    await setUpTestHive(); 
     await Hive.openBox('cartBox'); // Open the box used by CartController
   });
 
@@ -31,17 +32,27 @@ void main() {
       await tester.pumpWidget(
         ProviderScope(
           child: MaterialApp(
-            home: ProductDetailPage(product: testProduct),
+            home: Scaffold(
+              body: ProductDetailPage(product: testProduct),
+            ),
           ),
         ),
       );
 
       // Tap the Add to Cart button
       await tester.tap(find.text('Add to Cart'));
-      await tester.pump(); // rebuild after tap
+      
+      // Pump to start the SnackBar animation
+      await tester.pump(); 
+      
+      // Pump for duration of SnackBar animation to appear
+      await tester.pump(const Duration(seconds: 1));
 
-      // Verify SnackBar appears
+      // Verify SnackBar appears by text
       expect(find.text('Added to cart'), findsOneWidget);
+
+      // Optional: verify SnackBar appears by type
+      expect(find.byType(SnackBar), findsOneWidget);
     });
   });
 }

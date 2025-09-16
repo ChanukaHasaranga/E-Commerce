@@ -1,11 +1,16 @@
 import 'package:ecommerce/features/account/presentation/pages/account_page.dart';
 import 'package:ecommerce/features/cart/presentation/pages/cart_page.dart';
-import 'package:ecommerce/features/products/domain/products.dart';
+import 'package:ecommerce/features/products/data/product_repo_impl.dart';
+import 'package:ecommerce/features/products/domain/entities/products.dart';
+import 'package:ecommerce/features/products/presentation/pages/product_details.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-
+final productListProvider = FutureProvider<List<Product>>((ref) async {
+  final repo = ProductRepositoryImpl(FirebaseFirestore.instance);
+  return repo.fetchProducts();
+});
 
 class HomePage extends ConsumerStatefulWidget {
   const HomePage({super.key});
@@ -19,11 +24,7 @@ class _HomePageState extends ConsumerState<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    final tabs = [
-      _buildHomeTab(),
-      const CartPage(),
-      const AccountPage(),
-    ];
+    final tabs = [_buildHomeTab(), const CartPage(), const AccountPage()];
 
     return Scaffold(
       body: tabs[_currentIndex],
@@ -31,25 +32,82 @@ class _HomePageState extends ConsumerState<HomePage> {
         currentIndex: _currentIndex,
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
-          BottomNavigationBarItem(icon: Icon(Icons.shopping_cart), label: 'Cart'),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.shopping_cart),
+            label: 'Cart',
+          ),
           BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Account'),
         ],
         onTap: (index) => setState(() => _currentIndex = index),
       ),
     );
   }
+Widget _buildHomeTab() {
+  final productsAsync = ref.watch(productListProvider);
 
-  Widget _buildHomeTab() {
+  return productsAsync.when(
+    data: (products) {
+      return ListView.builder(
+        itemCount: products.length,
+        itemBuilder: (context, index) {
+          final product = products[index];
+          return ListTile(
+            leading: Image.network(
+              product.imageUrl,
+              height: 50,
+              width: 50,
+              fit: BoxFit.cover,
+              loadingBuilder: (context, child, loadingProgress) {
+                if (loadingProgress == null) return child;
+                return SizedBox(
+                  width: 50,
+                  height: 50,
+                  child: Center(
+                    child: CircularProgressIndicator(
+                      value: loadingProgress.expectedTotalBytes != null
+                          ? loadingProgress.cumulativeBytesLoaded /
+                              loadingProgress.expectedTotalBytes!
+                          : null,
+                    ),
+                  ),
+                );
+              },
+              errorBuilder: (context, error, stackTrace) => Container(
+                height: 50,
+                width: 50,
+                color: Colors.grey[300],
+                child: const Center(
+                  child: Icon(Icons.image_not_supported),
+                ),
+              ),
+            ),
+            title: Text(product.name),
+            subtitle: Text("\$${product.price.toStringAsFixed(2)}"),
+            onTap: () => Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => ProductDetailPage(product: product),
+              ),
+            ),
+          );
+        },
+      );
+    },
+    loading: () => const Center(child: CircularProgressIndicator()),
+    error: (e, _) => Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const Icon(Icons.cloud_off, size: 50, color: Colors.grey),
+          const SizedBox(height: 10),
+          Text(
+            "Unable to load products.\nCheck your Internet connection.",
+            textAlign: TextAlign.center,
+          ),
+        ],
+      ),
+    ),
+  );
+}
 
-        return ListView.builder(
-          itemCount: 5,
-          itemBuilder: (context, index) {
-            return ListTile(
-              title: Text("T shirt"),
-              subtitle: Text("Description"),
-            );
-          },
-        );
-      
-  }
 }
